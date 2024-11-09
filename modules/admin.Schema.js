@@ -41,8 +41,10 @@ const user = new mongoose.Schema({
     Wallet:{
         type:mongoose.Schema.Types.ObjectId,
         ref:'wallet'
+    },
+    profileImage:{
+        type:String,
     }
-
 } , {timestamps:true});
 
 const loginUser  =  mongoose.model('Admin' ,  user);

@@ -8,7 +8,6 @@ const userSchema = new mongoose.Schema({
     },
     email: {
         type: String,
-        unique: true, // Ensures no duplicate emails
     },
     phoneNumber: {
         type: String, // Changed to String for consistency

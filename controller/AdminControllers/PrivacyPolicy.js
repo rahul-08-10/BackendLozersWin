@@ -1,72 +1,83 @@
-const TermsAndConditions = require('../../modules/admin.Schema');
+const PrivacyPolicy = require('../../modules/admin.Schema'); // Adjust import to use PrivacyPolicy model
 
+// Create or update privacy policy
 const createOrUpdatePolicy = async (req, res) => {
     try {
-        const {  TermsAndCondition } = req.body;
+        const { privacypolicy } = req.body; // Extract privacy policy content from request body
 
-        if (! TermsAndCondition) {
+        // If no privacy policy content is provided in the request body
+        if (!privacypolicy) {
             return res.status(400).json({
                 success: false,
-                message: "Please provide the terms and conditions content",
+                message: "Please provide the privacy policy content",
             });
         }
-        const existingTerms = await TermsAndConditions.findOne();
 
-        if (existingTerms) {
-            existingTerms.TermsAndCondition = TermsAndCondition;
-            existingTerms.UpdatedTime= Date.now();
-            await existingTerms.save();
+        // Find if privacy policy already exists
+        const existingPolicy = await PrivacyPolicy.findOne();
+
+        if (existingPolicy) {
+            // If a privacy policy already exists, update its content and save it
+            existingPolicy.privacypolicy = privacypolicy; // Update the privacy policy content
+            existingPolicy.UpdatedTime = Date.now(); // Update the timestamp
+            await existingPolicy.save(); // Save the updated policy
 
             return res.status(200).json({
                 success: true,
-                message: "Terms and conditions updated successfully",
-                data: existingTerms,
+                message: "Privacy policy updated successfully",
+                updatedPolicy: {
+                    privacypolicy: existingPolicy.privacypolicy,
+                    updatedBy: req.user, // Include user info who updated the policy in response only
+                },
             });
         } else {
-            const newTerms = new TermsAndConditions({ TermsAndCondition });
-            await newTerms.save();
+            // If no policy exists, create a new privacy policy document and save it
+            const newPolicy = new PrivacyPolicy({ privacypolicy });
+            await newPolicy.save(); // Save the newly created policy
 
             return res.status(201).json({
                 success: true,
-                message: "Terms and conditions created successfully",
-                data: newTerms,
+                message: "Privacy policy created successfully",
+                data: newPolicy, // Return the newly created policy data
             });
         }
     } catch (error) {
+        // Handle errors
         console.error("Error:", error);
         return res.status(500).json({
             success: false,
-            message: "An error occurred while processing terms and conditions",
+            message: "An error occurred while processing the privacy policy",
         });
     }
 };
 
-// Fetch the latest terms and conditions
+// Fetch the latest privacy policy
 const getPrivacyPolicy = async (req, res) => {
     try {
-        const terms = await TermsAndConditions.findOne();
-        
-        if (!terms) {
+        const policy = await PrivacyPolicy.findOne(); // Find the latest privacy policy in the database
+
+        if (!policy) {
             return res.status(404).json({
                 success: false,
-                message: "Terms and conditions not found",
+                message: "Privacy policy not found",
             });
         }
 
         return res.status(200).json({
             success: true,
-            data: terms,
+            data: policy, // Return the found policy data
         });
     } catch (error) {
+        // Handle errors
         console.error("Error:", error);
         return res.status(500).json({
             success: false,
-            message: "An error occurred while fetching terms and conditions",
+            message: "An error occurred while fetching the privacy policy",
         });
     }
 };
 
 module.exports = {
-    createOrUpdatePolicy,
+    createOrUpdatePolicy, // Export the new function
     getPrivacyPolicy
 };

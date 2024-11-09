@@ -21,8 +21,11 @@ const createOrUpdateTerms = async (req, res) => {
 
             return res.status(200).json({
                 success: true,
-                message: "Terms and conditions updated successfully",
-                data: existingTerms,
+                message: "Privacy policy updated successfully",
+                updatedPolicy: {
+                    TermsAndCondition: existingTerms.TermsAndCondition,
+                    updatedBy: req.user, // Include user info who updated the policy in response only
+                },
             });
         } else {
             // Create new terms and conditions

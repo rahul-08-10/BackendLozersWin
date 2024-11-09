@@ -4,8 +4,18 @@ const Wallet = require("../../modules/wallet");
 const bcrypt = require('bcrypt');
 const { v4: uuidv4 } = require('uuid');
 const jwt = require('jsonwebtoken');
-const otpGenerator = require('otp-generator');
+// const otpGenerator = require('otp-generator');
 require('dotenv').config();
+
+
+
+function generateOTP(length) {
+    let otp = '';
+    for (let i = 0; i < length; i++) {
+        otp += Math.floor(Math.random() * 10); // Generate a random digit (0-9)
+    }
+    return otp;
+}
 
 const registerOrLogin = async (req, res) => {
     const { email, phoneNumber, otp, referralCode } = req.body;
@@ -23,7 +33,7 @@ const registerOrLogin = async (req, res) => {
 
         // If user is not present, register the user and generate OTP
         if (!existingUser) {
-            const generatedOtp = otpGenerator.generate(4, { upperCase: false, specialChars: false, digits: true });
+            const generatedOtp =generateOTP(4)
 
             // Fetch Bonus value from adminDetails
             const admin = await adminDetails.findOne(); // Fetch the first document 
@@ -99,6 +109,8 @@ const registerOrLogin = async (req, res) => {
 
             // Generate a token for the user after successful OTP verification
             const token = jwt.sign({ id: existingUser._id }, process.env.JWT, { expiresIn: '7d' });
+            const decoded = jwt.decode(token);
+            console.log("Decoded token:", decoded);
             return res.status(200).json({
                 success: true,
                 user: existingUser,

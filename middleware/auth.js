@@ -8,7 +8,7 @@ const authenticateToken = (req, res, next) => {
         console.log('No token provided');
         return res.status(401).json({ message: 'Access denied. No token provided.' });
     }
-    
+
     // Verify the token
     jwt.verify(token, process.env.JWT, (err, user) => {
         if (err) {
@@ -16,13 +16,20 @@ const authenticateToken = (req, res, next) => {
             return res.status(403).json({ message: 'Invalid token.' });
         }
 
+        // Check if user data is present in the token
+        console.log('Decoded user:', user); // Log the decoded user data
+
+        // if (!user || !user.role) {
+        //     console.error('User data is missing or invalid in the token.');
+        //     return res.status(403).json({ message: 'Invalid token structure.' });
+        // }
+
         // Attach user info to request
         req.user = user; // user should now contain { id: user._id, role: user.role }
         console.log('Authenticated user:', req.user); // Log the user object
         next(); // Pass control to the next middleware/route handler
     });
 };
-
 
 // Middleware to authorize admin
 const authenticateAdmin = (req, res, next) => {

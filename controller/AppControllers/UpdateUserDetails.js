@@ -2,8 +2,8 @@ const update = require('../../modules/userLogin.Schema');
 
 const updateCandidateData = async (req, res) => {
     const userId = req.body.id;
-    const { name, email, phoneNumber, DOB, Gender } = req.body; // Change "Email" to "email" to match the schema
-    const profileImage = req.file ? req.file.filename : null; // Get the filename of the uploaded image
+    const { name, email, phoneNumber, DOB, Gender } = req.body; 
+    const profileImage = req.file ? req.file.filename : null; 
 
     try {
         // Fetch the existing user data
