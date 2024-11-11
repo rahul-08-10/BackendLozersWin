@@ -4,7 +4,7 @@ const { verifyOtp } = require('../controller/AppControllers/otpController');
 const upload = require("../middleware/imageUpload");
 const updateCandidateData =  require('../controller/AppControllers/UpdateUserDetails');
 const ImageMiddleware   =  require('../middleware/imageUpload');
-const { registerOrLogin } = require('../controller/AppControllers/LoginAndRegister');
+const { registerOrLogin , logout } = require('../controller/AppControllers/LoginAndRegister');
 const {loginAdmin  , registerAdmin} =  require('../controller/AdminControllers/AdminLogin')
 const { update } = require('../controller/AdminControllers/AdminChangePassword');
 const { createOrUpdateTerms, getTermsAndConditions } = require('../controller/AdminControllers/TermsAndCondition');
@@ -39,11 +39,9 @@ router.post('/Admin/Banner/Update/:id' , ImageMiddleware , updateBanner);
 router.post('/createContest', authenticateAdmin , createContest);
 
 
-
-
-
 // App Routers
 router.post('/App/register', registerOrLogin );
+router.post('/App/logout', logout);
 router.patch('/App/update', authenticateToken , ImageMiddleware , updateCandidateData);
 
 

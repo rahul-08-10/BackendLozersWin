@@ -1,13 +1,9 @@
 const userDetails = require("../../modules/userLogin.Schema");
 const adminDetails = require('../../modules/admin.Schema');
 const Wallet = require("../../modules/wallet");
-const bcrypt = require('bcrypt');
 const { v4: uuidv4 } = require('uuid');
 const jwt = require('jsonwebtoken');
-// const otpGenerator = require('otp-generator');
 require('dotenv').config();
-
-
 
 function generateOTP(length) {
     let otp = '';
@@ -33,16 +29,15 @@ const registerOrLogin = async (req, res) => {
 
         // If user is not present, register the user and generate OTP
         if (!existingUser) {
-            const generatedOtp =generateOTP(4)
+            const generatedOtp = generateOTP(4);
 
             // Fetch Bonus value from adminDetails
-            const admin = await adminDetails.findOne(); // Fetch the first document 
+            const admin = await adminDetails.findOne(); 
             const bonusAmount = admin ? admin.Bonus : 0; 
 
             // Referral bonus logic
             let referralBonus = 0;
             if (referralCode) {
-                // Check if the referral code exists and belongs to an existing user
                 const referredUser = await userDetails.findOne({ referralCode });
                 if (referredUser) {
                     referralBonus = 10; // Example referral bonus amount
@@ -54,25 +49,25 @@ const registerOrLogin = async (req, res) => {
                 }
             }
 
-            // Create new wallet with a default balance and bonus (without referral bonus added to the wallet)
+            // Create new wallet with a default balance and bonus
             const newWallet = new Wallet({
-                MyBalance: 50, // Set initial balance to 50
+                MyBalance: 50, 
                 Deposite: 0,
                 Winnings: 0,
                 Status: "Active",
-                Bonus: bonusAmount, // Only the regular bonus, no referral bonus here
+                Bonus: bonusAmount, 
             });
             await newWallet.save();
 
             // Create new user with a reference to the wallet
             const newUser = new userDetails({
-                userId: uuidv4(), 
+                userId: uuidv4(),
                 email: email || null,
                 phoneNumber: phoneNumber || null,
                 otp: generatedOtp,
-                wallet: newWallet._id, // Assign the wallet's ObjectId
-                referralCode: uuidv4(),  // Generate a unique referral code for the user
-                referralBonus: referralBonus, // Store the referral bonus separately
+                wallet: newWallet._id,
+                referralCode: uuidv4(),
+                referralBonus: referralBonus,
                 Bonus: newWallet.Bonus
             });
 
@@ -81,14 +76,13 @@ const registerOrLogin = async (req, res) => {
             // Populate wallet data before sending response
             const populatedUser = await userDetails.findById(newUser._id).populate('wallet');
 
-            // Optionally, send the OTP to the user's phone or email here
             return res.status(201).json({
                 success: true,
                 message: "User registered successfully. OTP has been generated.",
-                otp: generatedOtp, // Return OTP for testing purposes (remove in production)
-                referralBonus: newUser.referralBonus, // Return the referral bonus separately
-                referralCode: newUser.referralCode,  // Return the generated referral code
-                wallet: populatedUser.wallet // Return wallet data
+                otp: generatedOtp, 
+                referralBonus: newUser.referralBonus,
+                referralCode: newUser.referralCode,
+                wallet: populatedUser.wallet 
             });
         } else {
             // If user exists, verify the OTP
@@ -108,7 +102,7 @@ const registerOrLogin = async (req, res) => {
             }
 
             // Generate a token for the user after successful OTP verification
-            const token = jwt.sign({ id: existingUser._id }, process.env.JWT, { expiresIn: '7d' });
+            const token = jwt.sign({ id: existingUser._id }, process.env.JWT, { expiresIn: '1h' }); // Set the token expiration time to 1 hour
             const decoded = jwt.decode(token);
             console.log("Decoded token:", decoded);
             return res.status(200).json({
@@ -128,5 +122,23 @@ const registerOrLogin = async (req, res) => {
     }
 };
 
+const logout = async (req, res) => {
+    try {
+        // Ideally, you handle token deletion on the client side, so we just send a response here.
+        res.clearCookie("token"); // If you're storing JWT in a cookie.
+        
+        // Send a response back that the logout was successful
+        return res.status(200).json({
+            success: true,
+            message: "Logged out successfully.",
+        });
+    } catch (error) {
+        console.error("Error:", error);
+        return res.status(500).json({
+            success: false,
+            message: "An error occurred during logout.",
+        });
+    }
+};
+module.exports = { registerOrLogin , logout };
 
-module.exports = { registerOrLogin};
