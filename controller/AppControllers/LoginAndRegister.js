@@ -30,7 +30,7 @@ const registerOrLogin = async (req, res) => {
 
         // If user is not present, register the user and generate static OTP
         if (!existingUser) {
-            const generatedOtp = "1234"; // Static OTP
+            const generatedOtp = "123456"; // Static OTP
 
             // Fetch Bonus value from adminDetails
             const admin = await adminDetails.findOne(); 

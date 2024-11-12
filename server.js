@@ -5,7 +5,7 @@ const cors = require('cors');
 const dbconnection = require('./config/database');
 const router = require('./router/router');
 require('dotenv').config();
-const port  =  process.env.PORT || 4000 
+const PORT  =  process.env.PORT || 4000 
 app.use(cors());
 app.use(express.json());
 
@@ -16,7 +16,7 @@ app.get("/",(req, res)=>{
 app.use('/api' , router );
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-app.listen(port , ()=>{
+app.listen(PORT , ()=>{
     console.log(`The server is running at port ${port}`)
 });
 
