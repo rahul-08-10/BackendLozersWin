@@ -5,13 +5,14 @@ const { v4: uuidv4 } = require('uuid');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
-function generateOTP(length) {
-    let otp = '';
-    for (let i = 0; i < length; i++) {
-        otp += Math.floor(Math.random() * 10); // Generate a random digit (0-9)
-    }
-    return otp;
-}
+// Commented out the generateOTP function as per the request
+// function generateOTP(length) {
+//     let otp = '';
+//     for (let i = 0; i < length; i++) {
+//         otp += Math.floor(Math.random() * 10); // Generate a random digit (0-9)
+//     }
+//     return otp;
+// }
 
 const registerOrLogin = async (req, res) => {
     const { email, phoneNumber, otp, referralCode } = req.body;
@@ -27,9 +28,9 @@ const registerOrLogin = async (req, res) => {
         // Check for existing user
         const existingUser = await userDetails.findOne({ email, phoneNumber }).populate('wallet');
 
-        // If user is not present, register the user and generate OTP
+        // If user is not present, register the user and generate static OTP
         if (!existingUser) {
-            const generatedOtp = generateOTP(4);
+            const generatedOtp = "1234"; // Static OTP
 
             // Fetch Bonus value from adminDetails
             const admin = await adminDetails.findOne(); 
@@ -93,8 +94,8 @@ const registerOrLogin = async (req, res) => {
                 });
             }
 
-            // Check if the OTP matches
-            if (existingUser.otp !== otp) {
+            // Check if the OTP matches (static OTP is 1234)
+            if (existingUser.otp !== "1234") {
                 return res.status(400).json({
                     success: false,
                     message: "Invalid OTP. Please try again.",
@@ -140,5 +141,5 @@ const logout = async (req, res) => {
         });
     }
 };
-module.exports = { registerOrLogin , logout };
 
+module.exports = { registerOrLogin, logout };
